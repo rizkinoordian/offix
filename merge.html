@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Merge PDF — Pecah PDF menjadi halaman, atur urutan per-halaman atau per-file dengan drag & drop, lalu gabungkan. 100% lokal di browser.">
+    <title>Merge PDF — Timestamp Photo Generator</title>
+    <link rel="stylesheet" href="libs/inter.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-icon">📚</div>
+            <h1>Merge PDF</h1>
+            <p class="subtitle">Pecah PDF jadi halaman, atur urutan per-halaman atau per-file, lalu gabungkan</p>
+            <nav class="app-nav">
+                <a href="index.html" class="nav-link">📸 Generator</a>
+                <a href="merge.html" class="nav-link active">📚 Merge PDF</a>
+                <a href="compress.html" class="nav-link">🗜️ Compress PDF & Gambar</a>
+            </nav>
+        </header>
+
+        <main class="organize-content">
+            <!-- Left: page thumbnails grid -->
+            <section class="panel pages-panel">
+                <!-- Empty state / dropzone -->
+                <div class="upload-area pages-dropzone" id="uploadArea">
+                    <div class="upload-placeholder">
+                        <span class="upload-icon">☁️</span>
+                        <p>Klik atau seret beberapa file PDF ke sini</p>
+                        <p class="upload-hint">Setiap PDF akan dipecah menjadi halaman</p>
+                    </div>
+                </div>
+
+                <!-- Page grid (hidden until pages exist) -->
+                <div class="pdf-page-grid hidden" id="pageGrid"></div>
+
+                <!-- Processing overlay -->
+                <div class="pages-busy hidden" id="pagesBusy">
+                    <span class="btn-loader"></span>
+                    <span>Memproses halaman…</span>
+                </div>
+
+                <input type="file" id="pdfInput" accept="application/pdf" multiple hidden>
+            </section>
+
+            <!-- Right: files list + actions -->
+            <aside class="panel files-panel">
+                <h2 class="panel-title">
+                    <span class="panel-icon">📄</span>
+                    File
+                    <button class="btn-reset-all hidden" id="resetAllBtn" title="Hapus semua file">Reset all</button>
+                </h2>
+
+                <p class="files-empty" id="filesEmpty">Belum ada file. Unggah PDF untuk mulai.</p>
+                <div class="file-list" id="fileList"></div>
+                <button class="btn btn-accent hidden" id="addMoreBtn">➕ Tambah PDF</button>
+
+                <div class="files-actions">
+                    <button class="btn btn-primary" id="mergeBtn" disabled>
+                        <span class="btn-loader hidden" id="mergeLoader"></span>
+                        <span id="mergeBtnText">🔗 Unggah PDF dulu</span>
+                    </button>
+                    <div class="download-group hidden" id="downloadGroup">
+                        <button class="btn btn-success" id="downloadBtn">⬇️ Unduh PDF Gabungan</button>
+                    </div>
+                    <p class="merge-error hidden" id="mergeError"></p>
+                    <p class="files-hint">Seret halaman untuk menyusun ulang, atau seret file untuk memindahkan
+                        seluruh halamannya.</p>
+                </div>
+            </aside>
+        </main>
+
+        <footer class="app-footer">
+            <p>📚 Merge PDF: 100% offline — file diproses di browser, tidak dikirim ke mana pun</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="toast">
+        <span class="toast-icon">✅</span>
+        <span class="toast-text" id="toastText">Selesai!</span>
+    </div>
+
+    <!-- pdf.js: render page thumbnails locally (vendored — no CDN, works offline) -->
+    <script src="libs/pdf.min.js"></script>
+    <!-- pdf-lib: merge/copy pages locally (vendored — no CDN, works offline) -->
+    <script src="libs/pdf-lib.min.js"></script>
+    <script src="merge.js"></script>
+</body>
+
+</html>

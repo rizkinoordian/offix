@@ -1,0 +1,26 @@
+# ── Dependencies ─────────────────────────────────────────────
+node_modules/
+
+# ── OS / Editor ──────────────────────────────────────────────
+.DS_Store
+*.swp
+*~
+
+# ── Generated photos (contain personal data: NIK, GPS, EXIF) ──
+output/*
+!output/.gitkeep
+
+# ── Automation runtime data ──────────────────────────────────
+# Chrome/Playwright browser profile — large + personal session data
+config/browser-profile/
+# Automation run logs
+logs/*
+!logs/.gitkeep
+
+# ── Local Claude Code settings ───────────────────────────────
+.claude/settings.local.json
+
+# ── Logs / env ───────────────────────────────────────────────
+*.log
+.env
+.env.local

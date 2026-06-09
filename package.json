@@ -1,0 +1,13 @@
+{
+  "name": "timestamp-photo-generator",
+  "version": "1.4.0",
+  "description": "Timestamp Photo Generator with Google Form Auto-Upload Automation",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "install-browser": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

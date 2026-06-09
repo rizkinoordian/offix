@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Timestamp Photo Generator — Tambahkan overlay waktu, lokasi, peta, dan identitas ke dalam foto Anda.">
+    <title>Timestamp Photo Generator</title>
+    <link rel="stylesheet" href="libs/inter.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-icon">📸</div>
+            <h1>Timestamp Photo Generator</h1>
+            <p class="subtitle">Tambahkan overlay waktu, lokasi, peta & identitas ke foto Anda</p>
+            <nav class="app-nav">
+                <a href="index.html" class="nav-link active">📸 Generator</a>
+                <a href="merge.html" class="nav-link">📚 Merge PDF</a>
+                <a href="compress.html" class="nav-link">🗜️ Compress PDF & Gambar</a>
+            </nav>
+        </header>
+
+        <div id="tab-generator">
+            <main class="main-content">
+                <!-- Left Panel: Controls -->
+                <section class="panel controls-panel">
+                    <h2 class="panel-title">
+                        <span class="panel-icon">⚙️</span>
+                        Pengaturan
+                    </h2>
+
+                    <!-- FR-01: Upload Photo -->
+                    <div class="form-group">
+                        <label for="photoInput">📷 Unggah Foto</label>
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-placeholder" id="uploadPlaceholder">
+                                <span class="upload-icon">☁️</span>
+                                <p>Klik atau seret foto ke sini</p>
+                                <p class="upload-hint">JPG / PNG</p>
+                            </div>
+                            <img id="photoPreview" class="photo-preview hidden" alt="Preview">
+                            <input type="file" id="photoInput" accept="image/jpeg,image/png" hidden>
+                        </div>
+                        <button class="btn btn-secondary btn-small" id="clearPhotoBtn" style="display:none;">✕ Hapus
+                            Foto</button>
+                    </div>
+
+                    <!-- FR-02: Identity Input Multi-line -->
+                    <div class="form-group">
+                        <label for="identityInput">🪪 Identitas</label>
+                        <textarea id="identityInput" placeholder="Nama / NIK&#10;Baris kedua...&#10;Baris ketiga..."
+                            rows="3">Rizki Noordian Hanifa / 221221</textarea>
+                    </div>
+
+                    <!-- FR-03: Datetime Picker -->
+                    <div class="form-group">
+                        <label for="datetimeInput">🕒 Waktu & Tanggal</label>
+                        <input type="datetime-local" id="datetimeInput">
+                    </div>
+
+                    <!-- FR-04: Geolocation & Interactive Map -->
+                    <div class="form-group">
+                        <label>📍 Lokasi</label>
+                        <button class="btn btn-accent" id="getLocationBtn">
+                            <span class="btn-loader hidden" id="locationLoader"></span>
+                            <span id="locationBtnText">Ambil Lokasi Saat Ini</span>
+                        </button>
+                        <div class="map-container hidden" id="mapContainer">
+                            <div id="map"></div>
+                            <p class="map-hint">📌 Klik peta atau seret pin untuk mengubah lokasi</p>
+                        </div>
+                        <div class="location-info hidden" id="locationInfo">
+                            <div class="info-row">
+                                <span class="info-label">Koordinat</span>
+                                <span class="info-value" id="coordsDisplay">—</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Alamat</span>
+                                <span class="info-value" id="addressDisplay">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Download Folder Setting -->
+                    <div class="form-group download-folder-group" id="downloadFolderGroup">
+                        <label>📂 Folder Download</label>
+                        <button class="btn btn-accent" id="setFolderBtn">
+                            <span>📂</span>
+                            <span id="setFolderBtnText">Atur Folder Download</span>
+                        </button>
+                        <div class="folder-info hidden" id="folderInfo">
+                            <div class="folder-name-row">
+                                <span class="folder-icon">📁</span>
+                                <span class="folder-name" id="folderName">—</span>
+                                <button class="btn-reset-folder" id="clearFolderBtn" title="Reset folder">✕</button>
+                            </div>
+                            <p class="folder-hint">File akan langsung disimpan ke folder ini</p>
+                        </div>
+                    </div>
+
+                    <!-- Generate & Download -->
+                    <div class="form-group actions">
+                        <button class="btn btn-primary" id="generateBtn" disabled>
+                            🖼️ Generate Foto
+                        </button>
+                        <div class="download-group hidden" id="downloadGroup">
+                            <button class="btn btn-success" id="downloadJpgBtn">⬇️ Unduh JPG</button>
+                            <button class="btn btn-success btn-outline" id="downloadPngBtn">⬇️ Unduh PNG</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Right Panel: Preview -->
+                <section class="panel preview-panel">
+                    <h2 class="panel-title">
+                        <span class="panel-icon">🖼️</span>
+                        Hasil Preview
+                    </h2>
+                    <div class="canvas-wrapper" id="canvasWrapper">
+                        <div class="canvas-placeholder" id="canvasPlaceholder">
+                            <span class="placeholder-icon">🏞️</span>
+                            <p>Unggah foto dan klik "Generate" untuk melihat hasil</p>
+                        </div>
+                        <canvas id="resultCanvas" class="hidden"></canvas>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <footer class="app-footer">
+            <p>📸 Generator: 100% offline</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="saveToast">
+        <span class="toast-icon">✅</span>
+        <span class="toast-text" id="saveToastText">Tersimpan!</span>
+    </div>
+
+    <!-- piexifjs for EXIF metadata injection -->
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <!-- Leaflet.js for interactive map -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Compress PDF & Gambar — Perkecil ukuran file PDF atau gambar di bawah batas maksimum yang Anda tentukan. 100% lokal di browser.">
+    <title>Compress PDF & Gambar — Timestamp Photo Generator</title>
+    <link rel="stylesheet" href="libs/inter.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-icon">🗜️</div>
+            <h1>Compress PDF & Gambar</h1>
+            <p class="subtitle">Perkecil ukuran PDF atau gambar di bawah batas maksimum yang Anda tentukan</p>
+            <nav class="app-nav">
+                <a href="index.html" class="nav-link">📸 Generator</a>
+                <a href="merge.html" class="nav-link">📚 Merge PDF</a>
+                <a href="compress.html" class="nav-link active">🗜️ Compress PDF & Gambar</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <!-- Left Panel: Controls -->
+            <section class="panel controls-panel">
+                <h2 class="panel-title">
+                    <span class="panel-icon">⚙️</span>
+                    Pengaturan
+                </h2>
+
+                <!-- File type -->
+                <div class="form-group">
+                    <label>📦 Jenis File</label>
+                    <div class="mode-toggle" id="modeToggle">
+                        <button type="button" class="mode-btn active" data-mode="pdf">📄 PDF</button>
+                        <button type="button" class="mode-btn" data-mode="image">🖼️ Gambar</button>
+                    </div>
+                </div>
+
+                <!-- Upload file -->
+                <div class="form-group">
+                    <label for="fileInput" id="uploadLabel">📄 Unggah PDF</label>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-placeholder" id="uploadPlaceholder">
+                            <span class="upload-icon">☁️</span>
+                            <p id="uploadText">Klik atau seret file PDF ke sini</p>
+                            <p class="upload-hint" id="uploadHint">PDF · maksimal 100MB</p>
+                        </div>
+                        <div class="location-info hidden" id="fileInfo">
+                            <div class="info-row">
+                                <span class="info-label">Nama File</span>
+                                <span class="info-value" id="fileName">—</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Ukuran Asli</span>
+                                <span class="info-value" id="fileSize">—</span>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" accept="application/pdf" hidden>
+                    <button class="btn btn-secondary btn-small" id="clearBtn" style="display:none;">✕ Hapus File</button>
+                </div>
+
+                <!-- Max file size -->
+                <div class="form-group">
+                    <label for="maxSizeInput">🎯 Ukuran Maksimum</label>
+                    <div class="size-input-row">
+                        <input type="number" id="maxSizeInput" min="0.05" step="0.1" placeholder="mis. 1" value="1">
+                        <select id="maxSizeUnit">
+                            <option value="MB" selected>MB</option>
+                            <option value="KB">KB</option>
+                        </select>
+                    </div>
+                    <p class="files-hint">Sistem akan mengompres file hingga ukurannya di bawah batas ini.</p>
+                </div>
+
+                <!-- Compress & Download -->
+                <div class="form-group actions">
+                    <button class="btn btn-primary" id="compressBtn" disabled>
+                        <span class="btn-loader hidden" id="compressLoader"></span>
+                        <span id="compressBtnText">🗜️ Unggah PDF dulu</span>
+                    </button>
+                    <div class="download-group hidden" id="downloadGroup">
+                        <button class="btn btn-success" id="downloadBtn">⬇️ Unduh File Terkompresi</button>
+                    </div>
+                    <p class="merge-error hidden" id="compressError"></p>
+                </div>
+            </section>
+
+            <!-- Right Panel: Result -->
+            <section class="panel preview-panel">
+                <h2 class="panel-title">
+                    <span class="panel-icon">📊</span>
+                    Hasil Kompresi
+                </h2>
+                <div class="canvas-wrapper" id="resultWrapper">
+                    <div class="canvas-placeholder" id="resultPlaceholder">
+                        <span class="placeholder-icon">🗜️</span>
+                        <p>Unggah PDF atau gambar, tentukan ukuran maksimum, lalu klik "Compress"</p>
+                    </div>
+                    <div class="result-card hidden" id="resultCard">
+                        <div class="location-info">
+                            <div class="info-row">
+                                <span class="info-label">Ukuran Asli</span>
+                                <span class="info-value" id="resOriginal">—</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Ukuran Setelah Kompresi</span>
+                                <span class="info-value" id="resCompressed">—</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Penghematan</span>
+                                <span class="info-value" id="resSaved">—</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Status Target</span>
+                                <span class="info-value" id="resStatus">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>🗜️ Compress PDF: 100% offline — file diproses di browser, tidak dikirim ke mana pun</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="toast">
+        <span class="toast-icon">✅</span>
+        <span class="toast-text" id="toastText">Selesai!</span>
+    </div>
+
+    <!-- pdf.js: rasterize pages locally (vendored — no CDN, works offline) -->
+    <script src="libs/pdf.min.js"></script>
+    <!-- pdf-lib: rebuild the PDF locally (vendored — no CDN, works offline) -->
+    <script src="libs/pdf-lib.min.js"></script>
+    <script src="compress.js"></script>
+</body>
+
+</html>
