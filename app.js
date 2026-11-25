@@ -201,7 +201,7 @@
             // First-time initialization
             leafletMap = L.map('map').setView([lat, lon], 16);
 
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            L.tileLayer('/api/tile/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '© OpenStreetMap'
             }).addTo(leafletMap);
@@ -302,7 +302,7 @@
                 const tx = centerTileX + dx;
                 const ty = centerTileY + dy;
                 const idx = (dy + 1) * GRID + (dx + 1);
-                const tileUrl = `https://tile.openstreetmap.org/${zoom}/${tx}/${ty}.png`;
+                const tileUrl = `/api/tile/${zoom}/${tx}/${ty}.png`;
 
                 const img = new Image();
                 img.crossOrigin = 'anonymous';

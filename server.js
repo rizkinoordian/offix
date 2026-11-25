@@ -54,6 +54,54 @@ app.post('/api/save-photo', (req, res) => {
     }
 });
 
+// ── API: Map tile proxy (FR-04, FR-06) ──────────────────────
+// OSM's tile policy rejects requests without an identifying User-Agent/Referer
+// (403 "Access blocked"). Proxying through the server lets us send a proper
+// User-Agent and cache tiles as the policy requires. Internet-dependent.
+const OSM_USER_AGENT = 'TimestampPhotoGenerator/1.4 (local personal tool)';
+const TILE_CACHE_MAX = 500;
+const tileCache = new Map(); // key "z/x/y" -> Buffer (insertion order = LRU)
+
+app.get('/api/tile/:z/:x/:y.png', async (req, res) => {
+    const z = Number(req.params.z);
+    const x = Number(req.params.x);
+    const y = Number(req.params.y);
+    const max = 2 ** z;
+    if (![z, x, y].every(Number.isInteger) || z < 0 || z > 19 ||
+        x < 0 || x >= max || y < 0 || y >= max) {
+        return res.status(400).end();
+    }
+
+    const key = `${z}/${x}/${y}`;
+    res.set('Cache-Control', 'public, max-age=604800');
+    res.type('png');
+
+    if (tileCache.has(key)) {
+        const buf = tileCache.get(key);
+        tileCache.delete(key);
+        tileCache.set(key, buf);
+        return res.send(buf);
+    }
+
+    try {
+        const upstream = await fetch(`https://tile.openstreetmap.org/${key}.png`, {
+            headers: { 'User-Agent': OSM_USER_AGENT }
+        });
+        if (!upstream.ok) {
+            return res.status(upstream.status).end();
+        }
+        const buf = Buffer.from(await upstream.arrayBuffer());
+        tileCache.set(key, buf);
+        if (tileCache.size > TILE_CACHE_MAX) {
+            tileCache.delete(tileCache.keys().next().value);
+        }
+        res.send(buf);
+    } catch (err) {
+        console.error('Tile fetch failed:', key, err.message);
+        res.status(502).end();
+    }
+});
+
 // ── Serve output directory ───────────────────────────────────
 app.use('/output', express.static(OUTPUT_DIR));
 
